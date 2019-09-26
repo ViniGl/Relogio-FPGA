@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;  --Soma (esta biblioteca =ieee)
 
-entity soma1 is
+entity SomadorCom1 is
     generic
     (
         datawidth : natural := 8;
@@ -15,7 +15,7 @@ entity soma1 is
     );
 end entity;
 
-architecture comportamento of soma1 is
+architecture comportamento of SomadorCom1 is
     begin
         saida <= std_logic_vector(unsigned(entrada) + incremento);
 end architecture;

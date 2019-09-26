@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity registradorGenerico is
+entity Acumulador is
     generic (
         dataWidth : natural := 8
     );
@@ -12,7 +12,7 @@ entity registradorGenerico is
     );
 end entity;
 
-architecture comportamento of registradorGenerico is
+architecture comportamento of Acumulador is
 begin
     -- In Altera devices, register signals have a set priority.
     -- The HDL design should reflect this priority.

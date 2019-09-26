@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity romMif is
+entity ROM is
 
     generic
     (
@@ -16,7 +16,7 @@ entity romMif is
     );
 end entity;
 
-architecture initFileROM of romMif is
+architecture initFileROM of ROM is
 
 type memory_t is array (2**addrWidth -1 downto 0) of std_logic_vector (dataWidth-1 downto 0);
 signal content: memory_t;
