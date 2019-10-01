@@ -15,9 +15,7 @@ architecture arch of FlipFlopD is
 begin
 	process (clock,clear) begin
 		if (clear = '1') then
-			saida<='0';
-		elsif (WE = '1') then
 			saida<=dado;
-	end if;
-end process;
+		end if;
+	end process;
 end architecture;
