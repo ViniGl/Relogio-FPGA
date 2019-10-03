@@ -34,4 +34,4 @@ begin
 
   output <= toout;
 
-	end architecture;
+end architecture;
