@@ -13,12 +13,12 @@ entity ULA is
 	port
 	(
 		-- Input ports
-		A	: in  std_logic_vector(datawidth-1 DOWNTO 0);
-		B	: in   std_logic_vector(datawidth-1 DOWNTO 0);
-		FUNC	: in std_logic_vector(1 DOWNTO 0);
+		A	: in  unsigned(datawidth-1 DOWNTO 0);
+		B	: in   unsigned(datawidth-1 DOWNTO 0);
+		FUNC	: in unsigned(1 DOWNTO 0);
 
 		-- Output ports
-		Y	: out std_logic_vector(datawidth-1 DOWNTO 0);
+		Y	: out unsigned(datawidth-1 DOWNTO 0);
 		Igual	: out std_logic
 	);
 end entity;
@@ -27,9 +27,8 @@ end entity;
 architecture functions of ULA is
 
 begin
-	Y <=  std_logic_vector(unsigned(A) + unsigned(B)) when (FUNC = "01") else 
+	Y <=  (A + B) when (FUNC = "01") else 
 			(A XOR B) when (FUNC = "10") else
-			"00000000" when (FUNC = "00");
 			
 	Igual <= '1' when ((A = B) and (FUNC = "11")) else '0';
 end architecture;

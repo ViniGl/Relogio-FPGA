@@ -1,98 +1,123 @@
-library library IEEE;
+library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
-entity TopLevel is
+entity Processador is
     
     generic (
-        dataWidth : natural := 20
-        addrWidth : natural := 20
-    )
+        dataWidth : natural := 8;
+		  instrucWidth : natural := 17;
+		  ENABLE_FLP : natural := 16;
+		  JMP_INCOND : natural := 15;
+		  JMP_COND : natural := 14;
+		  MUX_IMD : natural := 13;
+		  MUX_ACU : natural := 12;
+		  ENABLE_ACU : natural := 11;
+		  R_W : natural := 10
+    );
 
     port (
         clock : In std_logic;
-        baseTempo : In std_logic_vector(dataWidth - 1 downto 0);
+        data_In: In std_logic_vector(dataWidth - 1 downto 0);
         pcReset : in std_logic;
-        addr : Out std_logic_vector(addrWidth - 1 downto 0);
-        data : Out std_logic_vector(dataWidth - 1 downto 0)
+        addr_Out : Out std_logic_vector(instrucWidth - 1 downto 0);
+        data_Out : Out std_logic_vector(dataWidth - 1 downto 0)
     );
-end entity TopLevel;
+end entity Processador;
 
 
-architecture rtl of TopLevel is
+architecture rtl of Processador is
     
-    signal PC_ROM : unsigned(addrWidth - 1 downto 0);
-    signal DATA_FLOW : unsigned(dataWidth - 1 downto 0);
-    signal ROM_INC : unsigned(dataWidth - 1 downto 0);
-    signal INC_MUX : unsigned(addrWidth - 1 downto 0);
-    signal MUX_PC : unsigned(addrWidth - 1 downto 0);
-    signal JMPAND_MUX : unsigned(addrWidth - 1 downto 0);
-    signal MUX_ULA : unsigned(dataWidth - 1 downto 0);
-    signal ULA_MUX : unsigned(dataWidth - 1 downto 0);
-    signal MUX_ACUMULADOR : unsigned(dataWidth - 1 downto 0);
-    signal ACUMULADOR_OUT : unsigned(dataWidth - 1 downto 0);
-    signal DATA_IN : unsigned(dataWidth - 1 downto 0);
+    signal PC_ROM : std_logic_vector(dataWidth - 1 downto 0);
+    signal DATA_FLOW : std_logic_vector(instrucWidth - 1 downto 0);
+    signal ROM_INC : std_logic_vector(dataWidth - 1 downto 0);
+    signal INC_MUX : std_logic_vector(dataWidth - 1 downto 0);
+    signal MUX_PC : std_logic_vector(dataWidth - 1 downto 0);
+    signal JMPAND_OR : std_logic;
+	 signal JMPOR_MUX : std_logic;
+	 signal ULA_JMPAND : std_logic;
+    signal MUX_ULA : std_logic_vector(dataWidth - 1 downto 0);
+    signal ULA_MUX : std_logic_vector(dataWidth - 1 downto 0);
+    signal MUX_ACUMULADOR : std_logic_vector(dataWidth - 1 downto 0);
+    signal ACUMULADOR_OUT : std_logic_vector(dataWidth - 1 downto 0);
 
 begin
 
-    ROM : entity work.ROM
+    ROM : entity work.romMif
     port map (
-        Endereco => PC_ROM,
-        Dado => DATA_FLOW 
-    )
+        Endereco => PC_ROM(dataWidth - 1 downto 0),
+        Instrucao => DATA_FLOW
+    );
 
-    INC : entity work.soma1
+    INC : entity work.SomadorCom1
     port map (
-        entrada => ROM_INC,
+        entrada => PC_ROM,
         saida => INC_MUX 
-    )
+    );
 
-    Mux2x1_1 : entity work.MuxGenerico2
+    Mux2x1_1 : entity work.Mux2x1
     port map (
         A_MUX => INC_MUX,
-        B_MUX  => DATA_FLOW(X),
-        Sel_MUX => JMPAND_MUX,
+        B_MUX  => DATA_FLOW(dataWidth - 1 downto 0),
+        Sel_MUX => JMPOR_MUX,
         Y_MUX => MUX_PC
-    )
+    );
 
     PC : entity work.PC
-    port map (
+    port map ( 
         clock => clock,
-        addr => MUX_PC,
-        out_addr => PC_ROM,
-        reset => pcReset,
-    )
+        input => MUX_PC,
+        output => PC_ROM,
+        reset => pcReset
+    );
     
-    AND_1 : entity work.AND
+    AND_1 : entity work.AND_comp
     port map (
-        A => DATA_FLOW(X),
+        A => DATA_FLOW(JMP_COND),
         B => ULA_JMPAND,
-        Y => JMPAND_MUX
-    )
-
-    Mux2x1_ULA : entity work.MuxGenerico2
+        Y => JMPAND_OR
+    );
+	 
+	 OR_1 : entity work.OR_comp
     port map (
-        A_MUX => DATA_IN,
-        B_MUX => DATA_FLOW(X),
-        Sel_MUX => DATA_FLOW(SEL_MUX_ULA),
+        A => DATA_FLOW(JMP_INCOND),
+        B => JMPAND_OR,
+        Y => JMPOR_MUX
+    );
+
+    Mux2x1_ULA : entity work.Mux2x1
+    port map (
+        A_MUX => data_In,
+        B_MUX => DATA_FLOW(dataWidth - 1 downto 0),
+        Sel_MUX => DATA_FLOW(MUX_IMD),
         Y_MUX => MUX_ULA
-    )
+    );
 
-    Mux2x1_Acumulador : entity work.MuxGenerico2
+    Mux2x1_Acumulador : entity work.Mux2x1
     port map (
-        A_MUX => DATA_IN ,
+        A_MUX => data_In ,
         B_MUX => ULA_MUX,
-        Sel_MUX => DATA_FLOW(SEL_MUX_ACUMULADOR),
+        Sel_MUX => DATA_FLOW(MUX_ACU),
         Y_MUX => MUX_ACUMULADOR
-    )
+    );
 
     Acumulador : entity work.Acumulador
     port map (
         DIN => MUX_ACUMULADOR,
         DOUT => ACUMULADOR_OUT,
-        ENABLE => DATA_FLOW(X),
+        ENABLE => DATA_FLOW(ENABLE_ACU),
         CLK => clock
-    )
-
-    
+    );
+	 
+	 ULA : entity work.ULA
+	 port map (
+	     A => MUX_ULA,
+		  B => ACUMULADOR_OUT,
+		  Y => ULA_MUX,
+		  FUNC => DATA_FLOW(9 downto 8),
+		  Igual => ULA_JMPAND
+	 );
+	 
+	 data_Out <= ACUMULADOR_OUT;
+	 addr_Out <= DATA_FLOW;
 end architecture rtl;
