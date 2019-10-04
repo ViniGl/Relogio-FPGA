@@ -10,9 +10,11 @@ entity RAM is
     port
     (
         addr     : in std_logic_vector(addrWidth-1 downto 0);
-        we       : in std_logic := '1';
+        R_W       : in std_logic;
         clk      : in std_logic;
         dado_in  : in std_logic_vector(dataWidth-1 downto 0);
+		  divA : in std_logic_vector;
+		  divB : out std_logic_vector;
         dado_out : out std_logic_vector(dataWidth-1 downto 0)
     );
 end entity;
@@ -32,12 +34,14 @@ begin
     process(clk)
     begin
         if(rising_edge(clk)) then
-            if(we = '1') then
+            if(R_W = '0') then
                 ram(to_integer(unsigned(addr))) <= dado_in;
             end if;
             -- Register the address for reading during one clock cycle.
             addr_reg <= addr;
+				ram(1) <= divA;
         end if;
     end process;
     dado_out <= ram(to_integer(unsigned(addr_reg)));
+	 divB <= ram(2);
 end architecture;

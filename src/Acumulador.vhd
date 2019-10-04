@@ -5,7 +5,8 @@ entity Acumulador is
     generic (
         dataWidth : natural := 8
     );
-    port (DIN : in std_logic_vector(dataWidth-1 downto 0);
+    port (
+		 DIN : in std_logic_vector(dataWidth-1 downto 0);
        DOUT : out std_logic_vector(dataWidth-1 downto 0);
        ENABLE : in std_logic;
        CLK : in std_logic

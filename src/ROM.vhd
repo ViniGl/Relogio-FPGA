@@ -7,7 +7,7 @@ entity romMif is
 
     generic
     (
-        instrucWidth : natural := 17;
+        instrucWidth : natural := 19;
         addrWidth : natural := 8
     );
 

@@ -24,11 +24,9 @@ begin
     if rising_edge(clock) then
         if (reset = '1') then
           toout <= (others => '0');
-        toout <= input;
-		  
-
-      end if;
-    end if;
+		  end if;
+		toout <= input;
+	 end if;
   end process;
 
   output <= toout;

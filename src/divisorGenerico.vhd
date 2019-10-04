@@ -4,42 +4,14 @@ use ieee.numeric_std.all;
 
 entity divisorGenerico is
   generic (
-    divisor : natural := 8
+    divisor : natural := 50000000
   );
   port(
     clk      :   in std_logic;
-    saida_clk :   out std_logic
+	 divisorB :   in std_logic_vector(7 downto 0);
+    divisorA :   out std_logic_vector(7 downto 0)
   );
 end entity;
-
--- Nao usa o valor do divisor. So divide por 2.
-
-architecture divPor2 of divisorGenerico is
-  signal tick : std_logic;
-begin
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      tick <= not tick;
-    end if;
-  end process;
-  saida_clk <= tick;
-end architecture divPor2;
-
--- O valor "n" do divisor, define a divisao por 2^(n+1).
--- Ou seja, 2^n é metade do período da frequência de saída.
-
-architecture divPotenciaDe2 of divisorGenerico is
-  signal contador : std_logic_vector(divisor downto 0);
-begin
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      contador <= std_logic_vector(unsigned(contador) + 1);
-    end if;
-  end process;
-saida_clk <= contador(divisor);
-end architecture divPotenciaDe2;
 
 -- O valor "n" do divisor, define a divisao por "2n".
 -- Ou seja, n é metade do período da frequência de saída.
@@ -51,13 +23,16 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
+		if (divisorB = "00000001") then
+			divisorA <= "00000000";
+		end if;
       if contador = divisor then
         contador <= 0;
         tick <= not tick;
+		  divisorA <= "00000001";
       else
         contador <= contador + 1;
       end if;
     end if;
   end process;
-saida_clk <= tick;
 end architecture divInteiro;
