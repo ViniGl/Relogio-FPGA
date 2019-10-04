@@ -7,8 +7,8 @@ entity conversorHex7SegD_Min is
     port
     (
         -- Input ports
-        SW : in  std_logic_vector(7 downto 0);
-		  enable_min : in std_logic;
+        NUM : in  std_logic_vector(7 downto 0);
+		enable_min : in std_logic;
         -- Output ports
         HEX3 : out std_logic_vector(6 downto 0)  -- := (others => '1')
     );
@@ -36,7 +36,7 @@ begin
 	 process(all)
 	 begin
 		 if(enable_min = '1') then
-			 SWinteiro <= to_integer(unsigned(SW)) rem 10;
+			 SWinteiro <= to_integer(unsigned(NUM)) rem 10;
 
 --			 rascSaida7seg <=    "1000000" when SWinteiro=0 else ---0
 --											 "1111001" when SWinteiro=1 else ---1

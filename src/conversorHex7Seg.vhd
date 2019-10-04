@@ -6,7 +6,7 @@ entity conversorHex7SegU is
     port
     (
         -- Input ports
-        SW : in  std_logic_vector(7 downto 0);
+        NUM : in  std_logic_vector(7 downto 0);
         -- Output ports
         HEX0 : out std_logic_vector(6 downto 0)  -- := (others => '1')
     );

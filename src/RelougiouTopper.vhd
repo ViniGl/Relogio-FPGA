@@ -6,21 +6,21 @@ entity RelougiouTopper is
     
     generic (
         dataWidth : natural := 8;
-		  instrucWidth : natural := 19;
-		  ENABLE_DEC : natural := 18;
-		  R_W_DISP : natural := 17;
-		  R_Wram : natural := 10
+		instrucWidth : natural := 19;
+		ENABLE_DEC : natural := 18;
+		R_W_DISP : natural := 17;
+		R_Wram : natural := 10
     );
 
     port (
         CLOCK_50 : In std_logic;
         KEY : in std_logic_vector(3 downto 0);
-		  HEX0 : out std_logic_vector(6 downto 0);
-		  HEX1 : out std_logic_vector(6 downto 0);
-		  HEX2 : out std_logic_vector(6 downto 0);
-		  HEX3 : out std_logic_vector(6 downto 0);
-		  HEX4 : out std_logic_vector(6 downto 0);
-		  HEX5 : out std_logic_vector(6 downto 0)
+		HEX0 : out std_logic_vector(6 downto 0);
+		HEX1 : out std_logic_vector(6 downto 0);
+		HEX2 : out std_logic_vector(6 downto 0);
+		HEX3 : out std_logic_vector(6 downto 0);
+		HEX4 : out std_logic_vector(6 downto 0);
+		HEX5 : out std_logic_vector(6 downto 0)
     );
 end entity;
 
@@ -63,17 +63,17 @@ begin
 	 RAMMUS : entity work.RAM
 	 port map (
 	     addr => procall(dataWidth-1 downto 0),
-		  R_W => procall(R_Wram),
-		  clk => realclock,
-		  dado_in => procdata,
-		  divA => DIV_A,
-		  divB => DIV_B,
-		  dado_out => RamData
+		 R_W => procall(R_Wram),
+		 clk => realclock,
+		 dado_in => procdata,
+		 divA => DIV_A,
+		 divB => DIV_B,
+		 dado_out => RamData
 	 );
 	 
 	 ConvSegU : entity work.conversorHex7SegU
 	 port map (
-		  SW => RamData,
+		  NUM => RamData,
 		  enable_seg => SegDisp,
 		  HEX0 => HEX0
 	 );
@@ -81,35 +81,35 @@ begin
 	 
 	 ConvSegD : entity work.conversorHex7SegD
 	 port map (
-		  SW => RamData,
+		  NUM => RamData,
 		  enable_seg => SegDisp,
 		  HEX1 => HEX1
 	 );
 	 
 	 ConvMinU : entity work.conversorHex7SegU_Min
 	 port map (
-		  SW => RamData,
+		  NUM => RamData,
 		  enable_min => MinDisp,
 		  HEX2 => HEX2
 	 );
 	 
 	 ConvMinD : entity work.conversorHex7SegD_Min
 	 port map (
-		  SW => RamData,
+		  NUM => RamData,
 		  enable_min => MinDisp,
 		  HEX3 => HEX3
 	 );
 	 
 	 ConvHorU : entity work.conversorHex7SegU_Hor
 	 port map (
-		  SW => RamData,
+		  NUM => RamData,
 		  enable_hor => HorDisp,
 		  HEX4 => HEX4
 	 );
 	 
 	 ConvHorD : entity work.conversorHex7SegD_Hor
 	 port map (
-		  SW => RamData,
+		  NUM => RamData,
 		  enable_hor => HorDisp,
 		  HEX5 => HEX5
 	 );
