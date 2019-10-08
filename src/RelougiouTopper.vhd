@@ -32,96 +32,74 @@ end entity;
 
 architecture JuntosEshallowNow of RelougiouTopper is
     
-	 signal DIV_A : std_logic_vector(7 downto 0);
-	 signal DIV_B : std_logic_vector(7 downto 0);
-	 signal DIV_B_DATA : std_logic_vector(7 downto 0);
 	 signal RamData : std_logic_vector(dataWidth-1 downto 0);
 	 signal butter : std_logic;
 	 signal procdata : std_logic_vector(dataWidth-1	 downto 0);
 	 signal procall : std_logic_vector(instrucWidth - 1 downto 0);
-	 signal realclock: std_logic;
-	 signal DISP0 : std_logic_vector(6 downto 0);
-	 signal SegDisp: std_logic;
-	 signal MinDisp: std_logic;
-	 signal HorDisp: std_logic;
-	 --signal RamOutDisp : std_logic_vector(7 downto 0);
+	 signal decoderOut : std_logic_vector(2 downto 0);
+	 signal baseTempoOut: std_logic;
+	 signal TriStateIn : std_logic;
+	 signal TriStateOut : std_logic_vector(7 downto 0);
+	 signal data_in_proc : std_logic_vector(7 downto 0);
+	 signal Sel_ram_flip : std_logic;
 	 
-	 signal sigTeste : std_logic_vector (7 downto 0);
+
+
 	 signal testesigAcumulador : std_logic_vector(dataWidth-1 downto 0);
 	  signal testeinAula : std_logic_vector(dataWidth-1 downto 0);
 	   signal testeinBula : std_logic_vector(dataWidth-1 downto 0);
 		 signal testeOutULA : std_logic_vector(dataWidth-1 downto 0);
 			signal tick : std_logic := '0';
 				signal contador : integer range 0 to 50000000 := 0;
-					
 
---beginLEDR  : out STD_LOGIC_VECTOR(17 DOWNTO 0) := (others => '0');
+
+	 
 begin
 
-	
-	LEDR(3 downto 0) <= DIV_B(3 downto 0);
-	
-	LEDR(10) <= DIV_B_DATA(0);
-	
-	LEDR(11) <= procdata(0);
-	
-	LEDR(12) <= DIV_A(0);
+  LEDR(17) <= TriStateIn;
+	--LEDR(17 downto 0)<= procall(18 downto 1);
+--	process(CLOCK_50)
+--        begin
+--            if rising_edge(CLOCK_50) then
+--					if SW(17) = '0' then
+--						if contador = 10000000 then
+--							contador <= 0;
+--							tick <= not tick;
+--						else
+--                    contador <= contador + 1;
+--						end if;
+--					else
+--						if contador = 100 then
+--							contador <= 0;
+--							tick <= not tick;
+--						else
+--							contador <= contador + 1;
+--						end if;
+--					end if;
+--            end if;
+--        end process;
+--
 
-	--=====================MARCO============================
-	
-	
-	
-	
-	process(CLOCK_50)
-        begin
-            if rising_edge(CLOCK_50) then
-					if SW(17) = '0' then
-						if contador = 10000000 then
-							contador <= 0;
-							tick <= not tick;
-						else
-                    contador <= contador + 1;
-						end if;
-					else
-						if contador = 100 then
-							contador <= 0;
-							tick <= not tick;
-						else
-							contador <= contador + 1;
-						end if;
-					end if;
-            end if;
-        end process;
-
-	
-		teste : entity work.conversorHex7SegU_Min
-	 port map (
-			clk => CLOCK_50,
-		  NUM => testesigAcumulador,
-		  enable_min => '1',
-		  HEX2 => HEX7
-	 );
-	--####################################################
 
 	 BASETEMP : entity work.divisorGenerico
 	 port map (
-			clk => tick,
-			divisorA => DIV_A,
-			divisorB => DIV_B
+			clk => CLOCK_50,
+			Y => baseTempoOut,
+			rst => decoderOut,
+			SW => SW
 	 );
 
 	 butter <= not KEY(3);
 	 
     PROC : entity work.Processador
     port map (
-	 
 			--Marco
 			LEDG => LEDG,
 				sigAcumulador =>  testesigAcumulador, inAula => testeinAula, inBula => testeinBula, outULA => testeOutULA,  
 			--==
-	 
-        clock => tick,
-        data_In => RamData,
+
+        clock => CLOCK_50,
+        data_In => data_in_proc,
         pcReset => butter,
         addr_Out => procall,
         data_Out => procdata
@@ -129,65 +107,33 @@ begin
 	 
 	 RAMMUS : entity work.RAM
 	 port map (
-	     addr => procall(dataWidth-1 downto 0),
+	    addr => procall(dataWidth-1 downto 0),
 		 R_W => procall(R_Wram),
 		 clk => CLOCK_50,
-		 dibB_data => DIV_B_DATA,
+		 enable => decoderOut,
 		 dado_in => procdata,
-		 divA => DIV_A,
-		 divB => DIV_B,
-		 seg => sigTeste,
 		 dado_out => RamData
 	 );
 	 
 	 ConvSegU : entity work.conversorHex7SegU
 	 port map (
-			clk => CLOCK_50,
-
-		  NUM => RamData,
-		  enable_seg => SegDisp,
-		  HEX0 => HEX0
+		  clk => CLOCK_50,
+		  NUM => procdata,
+		  enable => decoderOut,
+		  HEXSeg => HEX0,
+		  HEXMin => HEX2,
+		  HEXHour => HEX4
 	 );
 	 
 	 
 	 ConvSegD : entity work.conversorHex7SegD
 	 port map (
-	 clk => CLOCK_50,
-		  NUM => RamData,
-		  enable_seg => SegDisp,
-		  HEX1 => HEX1
-	 );
-	 
-	 ConvMinU : entity work.conversorHex7SegU_Min
-	 port map (
-	 clk => CLOCK_50,
-		  NUM => RamData,
-		  enable_min => MinDisp,
-		  HEX2 => HEX2
-	 );
-	 
-	 ConvMinD : entity work.conversorHex7SegD_Min
-	 port map (
-	 clk => CLOCK_50,
-		  NUM => RamData,
-		  enable_min => MinDisp,
-		  HEX3 => HEX3
-	 );
-	 
-	 ConvHorU : entity work.conversorHex7SegU_Hor
-	 port map (
-	 clk => CLOCK_50,
-		  NUM => RamData,
-		  enable_hor => HorDisp,
-		  HEX4 => HEX4
-	 );
-	 
-	 ConvHorD : entity work.conversorHex7SegD_Hor
-	 port map (
-	 clk => CLOCK_50,
-		  NUM => RamData,
-		  enable_hor => HorDisp,
-		  HEX5 => HEX5
+		  clk => CLOCK_50,
+		  NUM => procdata,
+		  enable => decoderOut,
+		  HEXSeg => HEX1,
+		  HEXMin => HEX3,
+		  HEXHour => HEX5
 	 );
 	 
 	
@@ -195,12 +141,33 @@ begin
 	 port map (
 		  enable_dec => procall(ENABLE_DEC),
 		  R_W => procall(R_W_DISP),
-		  enable_disp => procall(dataWidth-1 downto 0),
-		  enable_seg => SegDisp,
-		  enable_min => MinDisp,
-		  enable_hor => HorDisp  
+		  addr => procall(dataWidth-1 downto 0),
+		  selector => Sel_ram_flip,
+		  Y => decoderOut
 	 );
 	 
+	 flip : entity work.FlipFlopDivisor
+	 port map (
+		 Entrada => baseTempoOut,
+		 D => '1',
+		 Q => TriStateIn, -- teste RamData
+		 RST => decoderOut
+	 );
+	 
+	 tristate : entity work.triState
+	 port map (
+			E => TriStateIn,
+			Sel => decoderOut,
+			Y => TriStateOut
+	 );
+	 
+	 Mux2x1_RAM_FLIP : entity work.Mux2x1
+    port map (
+        A_MUX => Ramdata,
+        B_MUX => TriStateOut,
+        Sel_MUX => Sel_ram_flip,
+        Y_MUX => data_in_proc
+    );
 	 
 	 
 end architecture JuntosEshallowNow;

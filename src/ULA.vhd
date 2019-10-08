@@ -29,7 +29,7 @@ architecture functions of ULA is
 begin
 	Y <= 	std_logic_vector(to_unsigned(to_integer(unsigned(A)) + to_integer(unsigned(B))  , Y'length)) when (FUNC = "01") else 
 			(A XOR B) when (FUNC = "10") else
-			(A) when (FUNC = "00");
+			(A) when (FUNC = "00") else A;
 			
 	Igual <= '1' when ((A = B) and (FUNC = "11")) else '0';
 end architecture;
