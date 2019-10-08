@@ -27,9 +27,9 @@ end entity;
 architecture functions of ULA is
 
 begin
-	Y <=  std_logic_vector(unsigned(A) + unsigned(B)) when (FUNC = "01") else 
+	Y <= 	std_logic_vector(to_unsigned(to_integer(unsigned(A)) + to_integer(unsigned(B))  , Y'length)) when (FUNC = "01") else 
 			(A XOR B) when (FUNC = "10") else
-			"00000000" when (FUNC = "00");
+			(A) when (FUNC = "00");
 			
 	Igual <= '1' when ((A = B) and (FUNC = "11")) else '0';
 end architecture;

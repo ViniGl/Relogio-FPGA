@@ -19,6 +19,20 @@ entity Processador is
     );
 
     port (
+	 
+	 
+			--============ testes Marco
+			LEDG : out std_logic_vector (7 downto 0);
+			
+			sigAcumulador : out std_logic_vector (dataWidth-1 downto 0);
+			inAula : out std_logic_vector (dataWidth-1 downto 0);
+			inBula : out std_logic_vector (dataWidth-1 downto 0);
+			outULA : out std_logic_vector (dataWidth-1 downto 0);
+					
+			--sigAcumulador => , inAula => , inBula => , outULA,  
+			--###########
+	 
+	 
         clock : In std_logic;
         data_In: In std_logic_vector(dataWidth - 1 downto 0);
         pcReset : in std_logic;
@@ -42,9 +56,12 @@ architecture rtl of Processador is
     signal ULA_MUX : std_logic_vector(dataWidth - 1 downto 0);
     signal MUX_ACUMULADOR : std_logic_vector(dataWidth - 1 downto 0);
     signal ACUMULADOR_OUT : std_logic_vector(dataWidth - 1 downto 0);
+	 signal FLIP_JMPAND : std_logic;
 
 begin
-
+	
+		LEDG <= PC_ROM;
+	
     ROM : entity work.romMif
     port map (
         Endereco => PC_ROM(dataWidth - 1 downto 0),
@@ -76,7 +93,7 @@ begin
     AND_1 : entity work.AND_comp
     port map (
         A => DATA_FLOW(JMP_COND),
-        B => ULA_JMPAND,
+        B => FLIP_JMPAND,
         Y => JMPAND_OR
     );
 	 
@@ -120,6 +137,21 @@ begin
 		  Igual => ULA_JMPAND
 	 );
 	 
+	 FLP : entity work.FlipFlopD
+	 port map(
+		clock => clock,
+		dado=> ULA_JMPAND,
+		WE => DATA_FLOW(ENABLE_FLP),
+		saida => FLIP_JMPAND
+	 );
+	 
 	 data_Out <= ACUMULADOR_OUT;
 	 addr_Out <= DATA_FLOW;
+	 
+	 
+	 sigAcumulador <= ACUMULADOR_OUT;
+			inAula <= MUX_ULA;
+			inBula <= ACUMULADOR_OUT;
+			outULA <= ULA_MUX;
+	 
 end architecture rtl;

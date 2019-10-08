@@ -14,7 +14,7 @@ entity decoder is
         -- Input ports
         enable_dec : in STD_LOGIC;
         R_W : in STD_LOGIC; --(R/!W)
-        enable_disp : std_logic_vector(addrWidth-1 downto 0);
+        enable_disp : in std_logic_vector(addrWidth-1 downto 0);
         -- Output ports
         enable_seg : out STD_LOGIC;
         enable_min : out STD_LOGIC;
@@ -25,25 +25,39 @@ end entity;
 architecture comportamento of decoder is
 	 
 begin
-    process(all)
-    begin
-    if (enable_dec = '1') then 
-        if (R_W = '0') then
-            if (enable_disp = "00000011") then
-                enable_seg <= '1';
-                enable_min <= '0';
-                enable_hor <= '0';
-            elsif (enable_disp = "00000100") then
-                enable_seg <= '0';
-                enable_min <= '1';
-                enable_hor <= '0';
-            elsif (enable_disp = "00000101") then
-                enable_seg <= '0';
-                enable_min <= '0';
-                enable_hor <= '1';
-            end if;
-        end if;
-    end if;
-    end process;
+
+
+--    process(all)
+--    begin
+--	 
+--	 enable_seg <= '0';
+--	 enable_min <= '0';
+--	 enable_hor <= '0';
+--	 
+--    if (enable_dec = '1') then 
+--        if (R_W = '0') then  
+--            if (enable_disp = "00000011") then
+--                enable_seg <= '1';
+--               
+--            elsif (enable_disp = "00000100") then              
+--                enable_min <= '1';
+--					 
+--            elsif (enable_disp = "00000101") then
+--                enable_hor <= '1';
+--            end if;	  
+--        end if;	  
+--    end if;
+--    end process;
+
+		
+	 
+	 enable_seg <= '1' when enable_disp = "00000011" AND R_W = '0' AND enable_dec = '1' else '0';
+	 
+	 enable_min <= '1' when enable_disp = "00000100" AND R_W = '0' AND enable_dec = '1' else '0';
+	 
+	 enable_hor <= '1' when enable_disp = "00000101" AND R_W = '0' AND enable_dec = '1' else '0';
+	 
+	 
+	 
 end architecture;
 

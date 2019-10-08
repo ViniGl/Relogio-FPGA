@@ -5,7 +5,7 @@ use IEEE.numeric_std.all;
 entity RelougiouTopper is
     
     generic (
-        dataWidth : natural := 8;
+      dataWidth : natural := 8;
 		instrucWidth : natural := 19;
 		ENABLE_DEC : natural := 18;
 		R_W_DISP : natural := 17;
@@ -13,14 +13,19 @@ entity RelougiouTopper is
     );
 
     port (
-        CLOCK_50 : In std_logic;
-        KEY : in std_logic_vector(3 downto 0);
+      CLOCK_50 : In std_logic;
+      KEY : in std_logic_vector(3 downto 0);
 		HEX0 : out std_logic_vector(6 downto 0);
 		HEX1 : out std_logic_vector(6 downto 0);
 		HEX2 : out std_logic_vector(6 downto 0);
 		HEX3 : out std_logic_vector(6 downto 0);
 		HEX4 : out std_logic_vector(6 downto 0);
-		HEX5 : out std_logic_vector(6 downto 0)
+		HEX5 : out std_logic_vector(6 downto 0);
+		HEX6 : out std_logic_vector(6 downto 0);
+		HEX7 : out std_logic_vector(6 downto 0);
+		LEDG  : out STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
+		LEDR  : out STD_LOGIC_VECTOR(17 DOWNTO 0) := (others => '0');
+		SW  : in STD_LOGIC_VECTOR(17 DOWNTO 0) := (others => '0')
     );
 end entity;
 
@@ -29,9 +34,10 @@ architecture JuntosEshallowNow of RelougiouTopper is
     
 	 signal DIV_A : std_logic_vector(7 downto 0);
 	 signal DIV_B : std_logic_vector(7 downto 0);
+	 signal DIV_B_DATA : std_logic_vector(7 downto 0);
 	 signal RamData : std_logic_vector(dataWidth-1 downto 0);
 	 signal butter : std_logic;
-	 signal procdata : std_logic_vector(dataWidth-1 downto 0);
+	 signal procdata : std_logic_vector(dataWidth-1	 downto 0);
 	 signal procall : std_logic_vector(instrucWidth - 1 downto 0);
 	 signal realclock: std_logic;
 	 signal DISP0 : std_logic_vector(6 downto 0);
@@ -39,12 +45,67 @@ architecture JuntosEshallowNow of RelougiouTopper is
 	 signal MinDisp: std_logic;
 	 signal HorDisp: std_logic;
 	 --signal RamOutDisp : std_logic_vector(7 downto 0);
-
-begin
 	 
-	 BASETEMP : entity work.divisorGenerico
+	 signal sigTeste : std_logic_vector (7 downto 0);
+	 signal testesigAcumulador : std_logic_vector(dataWidth-1 downto 0);
+	  signal testeinAula : std_logic_vector(dataWidth-1 downto 0);
+	   signal testeinBula : std_logic_vector(dataWidth-1 downto 0);
+		 signal testeOutULA : std_logic_vector(dataWidth-1 downto 0);
+			signal tick : std_logic := '0';
+				signal contador : integer range 0 to 50000000 := 0;
+					
+
+--beginLEDR  : out STD_LOGIC_VECTOR(17 DOWNTO 0) := (others => '0');
+begin
+
+	
+	LEDR(3 downto 0) <= DIV_B(3 downto 0);
+	
+	LEDR(10) <= DIV_B_DATA(0);
+	
+	LEDR(11) <= procdata(0);
+	
+	LEDR(12) <= DIV_A(0);
+
+	--=====================MARCO============================
+	
+	
+	
+	
+	process(CLOCK_50)
+        begin
+            if rising_edge(CLOCK_50) then
+					if SW(17) = '0' then
+						if contador = 10000000 then
+							contador <= 0;
+							tick <= not tick;
+						else
+                    contador <= contador + 1;
+						end if;
+					else
+						if contador = 100 then
+							contador <= 0;
+							tick <= not tick;
+						else
+							contador <= contador + 1;
+						end if;
+					end if;
+            end if;
+        end process;
+
+	
+		teste : entity work.conversorHex7SegU_Min
 	 port map (
 			clk => CLOCK_50,
+		  NUM => testesigAcumulador,
+		  enable_min => '1',
+		  HEX2 => HEX7
+	 );
+	--####################################################
+
+	 BASETEMP : entity work.divisorGenerico
+	 port map (
+			clk => tick,
 			divisorA => DIV_A,
 			divisorB => DIV_B
 	 );
@@ -53,7 +114,13 @@ begin
 	 
     PROC : entity work.Processador
     port map (
-        clock => realclock,
+	 
+			--Marco
+			LEDG => LEDG,
+				sigAcumulador =>  testesigAcumulador, inAula => testeinAula, inBula => testeinBula, outULA => testeOutULA,  
+			--==
+	 
+        clock => tick,
         data_In => RamData,
         pcReset => butter,
         addr_Out => procall,
@@ -64,15 +131,19 @@ begin
 	 port map (
 	     addr => procall(dataWidth-1 downto 0),
 		 R_W => procall(R_Wram),
-		 clk => realclock,
+		 clk => CLOCK_50,
+		 dibB_data => DIV_B_DATA,
 		 dado_in => procdata,
 		 divA => DIV_A,
 		 divB => DIV_B,
+		 seg => sigTeste,
 		 dado_out => RamData
 	 );
 	 
 	 ConvSegU : entity work.conversorHex7SegU
 	 port map (
+			clk => CLOCK_50,
+
 		  NUM => RamData,
 		  enable_seg => SegDisp,
 		  HEX0 => HEX0
@@ -81,6 +152,7 @@ begin
 	 
 	 ConvSegD : entity work.conversorHex7SegD
 	 port map (
+	 clk => CLOCK_50,
 		  NUM => RamData,
 		  enable_seg => SegDisp,
 		  HEX1 => HEX1
@@ -88,6 +160,7 @@ begin
 	 
 	 ConvMinU : entity work.conversorHex7SegU_Min
 	 port map (
+	 clk => CLOCK_50,
 		  NUM => RamData,
 		  enable_min => MinDisp,
 		  HEX2 => HEX2
@@ -95,6 +168,7 @@ begin
 	 
 	 ConvMinD : entity work.conversorHex7SegD_Min
 	 port map (
+	 clk => CLOCK_50,
 		  NUM => RamData,
 		  enable_min => MinDisp,
 		  HEX3 => HEX3
@@ -102,6 +176,7 @@ begin
 	 
 	 ConvHorU : entity work.conversorHex7SegU_Hor
 	 port map (
+	 clk => CLOCK_50,
 		  NUM => RamData,
 		  enable_hor => HorDisp,
 		  HEX4 => HEX4
@@ -109,6 +184,7 @@ begin
 	 
 	 ConvHorD : entity work.conversorHex7SegD_Hor
 	 port map (
+	 clk => CLOCK_50,
 		  NUM => RamData,
 		  enable_hor => HorDisp,
 		  HEX5 => HEX5
