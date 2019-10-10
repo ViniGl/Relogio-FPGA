@@ -11,14 +11,9 @@ entity RAM is
     (
         addr     : in std_logic_vector(addrWidth-1 downto 0);
         R_W       : in std_logic;
+		  enable       : in std_logic_vector(2 downto 0);
         clk      : in std_logic;
         dado_in  : in std_logic_vector(dataWidth-1 downto 0);
-		  divA : in std_logic_vector(dataWidth-1 downto 0);
-		  divB : out std_logic_vector(dataWidth-1 downto 0);
-		  seg : out std_logic_vector(dataWidth-1 downto 0);
---		  min : out std_logic_vector(dataWidth-1 downto 0);
---		  divB : out std_logic_vector(dataWidth-1 downto 0);
-		  dibB_data : out std_logic_vector(dataWidth-1 downto 0);
         dado_out : out std_logic_vector(dataWidth-1 downto 0)
 
     );
@@ -38,20 +33,16 @@ architecture rtl of RAM is
 begin
     process(clk)
     begin
+		if (enable = "001") then
         if(rising_edge(clk)) then
             if(R_W = '0') then
                 ram(to_integer(unsigned(addr))) <= dado_in;
             end if;
-				if(divA = "00000001") then
-					ram(10) <= divA;
-				end if;
-            -- Register the address for reading during one clock cycle.
             addr_reg <= addr;
         end if;
+		  dado_out <= ram(to_integer(unsigned(addr_reg)));
+		end if;
     end process;
-    dado_out <= ram(to_integer(unsigned(addr_reg)));
-	 --dado_out <= "00000011";
-	 divB <= ram(15);
+    
 
-	 seg <= ram(3);
 end architecture;

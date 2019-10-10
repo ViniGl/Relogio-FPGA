@@ -6,7 +6,8 @@ entity decoder is
 
     generic
     (
-        addrWidth : natural := 8
+        addrWidth : natural := 8;
+		  decoded : natural := 3
     );
 
     port
@@ -14,50 +15,28 @@ entity decoder is
         -- Input ports
         enable_dec : in STD_LOGIC;
         R_W : in STD_LOGIC; --(R/!W)
-        enable_disp : in std_logic_vector(addrWidth-1 downto 0);
+        addr : in std_logic_vector(addrWidth-1 downto 0);
         -- Output ports
-        enable_seg : out STD_LOGIC;
-        enable_min : out STD_LOGIC;
-        enable_hor : out STD_LOGIC
+		  Y : out std_logic_vector(decoded-1 downto 0);
+		  selector : out std_logic
+		
     );
 end entity;
 
 architecture comportamento of decoder is
 	 
-begin
-
-
---    process(all)
---    begin
---	 
---	 enable_seg <= '0';
---	 enable_min <= '0';
---	 enable_hor <= '0';
---	 
---    if (enable_dec = '1') then 
---        if (R_W = '0') then  
---            if (enable_disp = "00000011") then
---                enable_seg <= '1';
---               
---            elsif (enable_disp = "00000100") then              
---                enable_min <= '1';
---					 
---            elsif (enable_disp = "00000101") then
---                enable_hor <= '1';
---            end if;	  
---        end if;	  
---    end if;
---    end process;
-
-		
+begin	
 	 
-	 enable_seg <= '1' when enable_disp = "00000011" AND R_W = '0' AND enable_dec = '1' else '0';
+	 Y <= "001" when (addr(7) = '0') else --RAM
+	 "111" when (addr = "10000010") else --SEL TRI STATE
+	 "010" when (addr = "10000001") else --RESET FLIPFLOP
+	 "011" when (addr = "10001100") else --DISPLAY SEG
+	 "101" when (addr = "10010100") else --DISPLAY MIN
+	 "110" when (addr = "10011000") else --DISPLAY HOUR
+	 "000";	 
 	 
-	 enable_min <= '1' when enable_disp = "00000100" AND R_W = '0' AND enable_dec = '1' else '0';
-	 
-	 enable_hor <= '1' when enable_disp = "00000101" AND R_W = '0' AND enable_dec = '1' else '0';
-	 
-	 
+	 selector <= '1' when (addr = "10000010") else
+					'0';
 	 
 end architecture;
 
