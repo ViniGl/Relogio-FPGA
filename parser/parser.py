@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 from dicionario import operations,variables
 import os
 import sys
