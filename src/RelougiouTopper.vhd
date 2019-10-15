@@ -22,7 +22,6 @@ entity RelougiouTopper is
 		HEX4 : out std_logic_vector(6 downto 0);
 		HEX5 : out std_logic_vector(6 downto 0);
 		HEX6 : out std_logic_vector(6 downto 0);
-		HEX7 : out std_logic_vector(6 downto 0);
 		LEDG  : out STD_LOGIC_VECTOR(7 DOWNTO 0) := (others => '0');
 		LEDR  : out STD_LOGIC_VECTOR(17 DOWNTO 0) := (others => '0');
 		SW  : in STD_LOGIC_VECTOR(17 DOWNTO 0) := (others => '0')
@@ -49,37 +48,33 @@ architecture JuntosEshallowNow of RelougiouTopper is
 	  signal testeinAula : std_logic_vector(dataWidth-1 downto 0);
 	   signal testeinBula : std_logic_vector(dataWidth-1 downto 0);
 		 signal testeOutULA : std_logic_vector(dataWidth-1 downto 0);
-			signal tick : std_logic := '0';
+			signal tick : std_logic ;
 				signal contador : integer range 0 to 50000000 := 0;
 
 
 	 
 begin
 
-  LEDR(17) <= TriStateIn;
+  LEDR(2 downto 0) <= decoderOut(2 downto 0);
+  
+--  LEDR(17 downto 0) <= procall(18 downto 1); 
 	--LEDR(17 downto 0)<= procall(18 downto 1);
---	process(CLOCK_50)
---        begin
---            if rising_edge(CLOCK_50) then
---					if SW(17) = '0' then
---						if contador = 10000000 then
---							contador <= 0;
---							tick <= not tick;
---						else
---                    contador <= contador + 1;
---						end if;
---					else
---						if contador = 100 then
---							contador <= 0;
---							tick <= not tick;
---						else
---							contador <= contador + 1;
---						end if;
---					end if;
---            end if;
---        end process;
---
 
+	 
+	 edge : entity work.edgeDetector
+	 port map (
+			clk => CLOCK_50,
+			entrada => not KEY(0),
+			saida => tick
+	 );
+	 
+	 rstPC: entity work.edgeDetector
+	 port map (
+			clk => CLOCK_50,
+			entrada => not KEY(3),
+			saida => butter
+	 );
+	 
 
 	 BASETEMP : entity work.divisorGenerico
 	 port map (
@@ -89,7 +84,6 @@ begin
 			SW => SW
 	 );
 
-	 butter <= not KEY(3);
 	 
     PROC : entity work.Processador
     port map (
@@ -122,8 +116,16 @@ begin
 		  enable => decoderOut,
 		  HEXSeg => HEX0,
 		  HEXMin => HEX2,
-		  HEXHour => HEX4
+		  HEXHour => HEX4 
 	 );
+	 
+--	 ConvAMPM : entity work.conversorHex7AMPM
+--	 port map (
+--		  clk => CLOCK_50,
+--		  flag => procdata,
+--		  enable => decoderOut,
+--		  HEXAM => HEX6
+--	 );
 	 
 	 
 	 ConvSegD : entity work.conversorHex7SegD
@@ -134,6 +136,7 @@ begin
 		  HEXSeg => HEX1,
 		  HEXMin => HEX3,
 		  HEXHour => HEX5
+
 	 );
 	 
 	
@@ -157,6 +160,7 @@ begin
 	 tristate : entity work.triState
 	 port map (
 			E => TriStateIn,
+			Switch => SW(0),
 			Sel => decoderOut,
 			Y => TriStateOut
 	 );

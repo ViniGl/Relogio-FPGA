@@ -27,16 +27,16 @@ architecture comportamento of decoder is
 	 
 begin	
 	 
-	 Y <= "001" when (addr(7) = '0') else --RAM
-	 "111" when (addr = "10000010") else --SEL TRI STATE
-	 "010" when (addr = "10000001") else --RESET FLIPFLOP
-	 "011" when (addr = "10001100") else --DISPLAY SEG
-	 "101" when (addr = "10010100") else --DISPLAY MIN
-	 "110" when (addr = "10011000") else --DISPLAY HOUR
-	 "000";	 
-	 
-	 selector <= '1' when (addr = "10000010") else
-					'0';
-	 
+		 Y <= "001" when (addr(7) = '0' and enable_dec = '1') else --RAM
+		 "111" when (addr = "10000010" and enable_dec = '1') else --SEL TRI STATE
+		 "010" when (addr = "10000001" and enable_dec = '1') else --RESET FLIPFLOP
+		 "011" when (addr = "10001100" and enable_dec = '1') else --DISPLAY SEG
+		 "101" when (addr = "10010100" and enable_dec = '1') else --DISPLAY MIN
+		 "110" when (addr = "10011000" and enable_dec = '1') else --DISPLAY HOUR
+		 "000" when (addr = "10001000" and enable_dec = '1') else
+		 "000";	 
+		 
+		 selector <= '1' when (addr = "10000010" and enable_dec = '1') else
+						'0';
 end architecture;
 

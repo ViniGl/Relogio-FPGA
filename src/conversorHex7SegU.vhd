@@ -13,7 +13,8 @@ entity conversorHex7SegU is
 		-- Output ports
 		HEXSeg : out std_logic_vector(6 downto 0);  -- := (others => '1')
 		HEXMin : out std_logic_vector(6 downto 0);  -- := (others => '1')
-		HEXHour : out std_logic_vector(6 downto 0)  -- := (others => '1')
+		HEXHour : out std_logic_vector(6 downto 0);  -- := (others => '1')
+		HEXAcu : out std_logic_vector(6 downto 0)
     );
 end entity;
 
@@ -54,6 +55,7 @@ begin
 
 	process(clk)
 		begin
+			HEXAcu <= rascSaida7;
 			if(enable = "011") then
 				if(rising_edge(clk)) then
 					HEXSeg <= rascSaida7;

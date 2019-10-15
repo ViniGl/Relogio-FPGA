@@ -21,12 +21,13 @@ architecture arch of PC is
 
 begin
   process (reset,clock) begin
-    if rising_edge(clock) then
-        if (reset = '1') then
+		if (reset = '1') then
           toout <= (others => '0');
-		  end if;
+		  
+		elsif rising_edge(clock) then
+        
 		toout <= input;
-	 end if;
+		end if;
   end process;
 
   output <= toout;

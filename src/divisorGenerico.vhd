@@ -5,8 +5,8 @@ use ieee.numeric_std.all;
 entity divisorGenerico is
   generic (
     divisor : natural := 50000000;
-	 divisor2 : natural := 25000000;
-	 divisor3 : natural := 100000;
+	 divisor2 : natural := 5000000;
+	 divisor3 : natural := 1000000;
 	 divisor4 : natural := 10000
   );
   port(
@@ -27,16 +27,47 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-			if (rst = "010") then
-				contador <= 0;
-				Y <= '0';
-			
-			elsif (contador >= divisor) then
-				Y <= '1';	
-			else
-				Y <= '0';
-				contador <= contador + 1;
-			end if;
+		if (SW(17) = '0' and SW(16) = '0') then
+				if (rst = "010") then
+					contador <= 0;
+					Y <= '0';
+				
+				elsif (contador >= divisor) then
+					Y <= '1';	
+				else
+					contador <= contador + 1;
+				end if;
+		elsif (SW(17) = '0' and SW(16) = '1') then
+				if (rst = "010") then
+					contador <= 0;
+					Y <= '0';
+				
+				elsif (contador >= divisor2) then
+					Y <= '1';	
+				else
+					contador <= contador + 1;
+				end if;
+		elsif (SW(17) = '1' and SW(16) = '0') then
+				if (rst = "010") then
+					contador <= 0;
+					Y <= '0';
+				
+				elsif (contador >= divisor3) then
+					Y <= '1';	
+				else
+					contador <= contador + 1;
+				end if;
+		elsif (SW(17) = '1' and SW(16) = '1') then
+				if (rst = "010") then
+					contador <= 0;
+					Y <= '0';
+				
+				elsif (contador >= divisor4) then
+					Y <= '1';	
+				else
+					contador <= contador + 1;
+				end if;
+		end if;
 	 end if;
 
   end process;

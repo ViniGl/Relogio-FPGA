@@ -35,13 +35,20 @@ begin
     begin
 		if (enable = "001") then
         if(rising_edge(clk)) then
-            if(R_W = '0') then
+            if(R_W = '0') then -- 0 ESCREVE NA RAM
                 ram(to_integer(unsigned(addr))) <= dado_in;
+				else
+					 null;
             end if;
-            addr_reg <= addr;
+            --addr_reg <= addr;
+			else
+				null;
         end if;
-		  dado_out <= ram(to_integer(unsigned(addr_reg)));
+		  dado_out <= ram(to_integer(unsigned(addr)));
+		else
+		  null;
 		end if;
+		
     end process;
     
 

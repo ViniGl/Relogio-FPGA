@@ -14,6 +14,9 @@ entity Acumulador is
 end entity;
 
 architecture comportamento of Acumulador is
+
+signal hold : std_logic_vector(dataWidth-1 downto 0);
+
 begin
     -- In Altera devices, register signals have a set priority.
     -- The HDL design should reflect this priority.
@@ -24,8 +27,8 @@ begin
         -- Check for synchronous reset, then synchronous load.
         -- If none of these takes precedence, update the register output
         -- to be the register input.
-        if (rising_edge(CLK)) then
-            if (ENABLE = '1') then
+        if (ENABLE = '1') then
+            if (rising_edge(CLK)) then
                     DOUT <= DIN;
             end if;
         end if;

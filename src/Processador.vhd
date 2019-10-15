@@ -60,7 +60,7 @@ architecture rtl of Processador is
 
 begin
 	
-		LEDG <= PC_ROM;
+	LEDG <= PC_ROM;
 	
     ROM : entity work.romMif
     port map (

@@ -23,7 +23,7 @@ type memory_t is array (2**addrWidth -1 downto 0) of std_logic_vector (instrucWi
 signal content: memory_t;
 attribute ram_init_file : string;
 attribute ram_init_file of content:
-signal is "/home/arqcomp/desCompVini/Relogio-FPGA/test/initROM.mif";
+signal is "/home/arqcomp/desCompVini/Relogio-FPGA/src/initROM.mif";
 
 begin
    Instrucao <= content(to_integer(unsigned(Endereco)));

@@ -13,7 +13,7 @@ entity conversorHex7SegD is
 		-- Output ports
 		HEXSeg : out std_logic_vector(6 downto 0);  -- := (others => '1')
 		HEXMin : out std_logic_vector(6 downto 0); -- := (others => '1')
-		HEXHour : out std_logic_vector(6 downto 0)  -- := (others => '1')
+		HEXHour : out std_logic_vector(6 downto 0)	-- := (others => '1')
     );
 end entity;
 
